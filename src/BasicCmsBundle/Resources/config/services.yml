@@ -1,0 +1,39 @@
+services:
+#    basic_cms.example:
+#        class: BasicCmsBundle\Example
+#        arguments: [@service_id, "plain_value", %parameter%]
+    basiccms.phpcr.initializer.site:
+        class: BasicCmsBundle\Initializer\SiteInitializer
+        tags:
+            - { name: doctrine_phpcr.initializer, priority: 50 }
+            
+    basiccms.basic_cms.admin.page:
+        class: BasicCmsBundle\Admin\PageAdmin
+        arguments:
+            - ''
+            - BasicCmsBundle\Document\Page
+            - 'SonataAdminBundle:CRUD'
+        tags:
+            - { name: sonata.admin, manager_type: doctrine_phpcr, group: 'Basic CMS', label: Page }
+        calls:
+            - [setRouteBuilder, ['@sonata.admin.route.path_info_slashes']]
+    basiccms.basic_cms.admin.post:
+        class: BasicCmsBundle\Admin\PostAdmin
+        arguments:
+            - ''
+            - BasicCmsBundle\Document\Post
+            - 'SonataAdminBundle:CRUD'
+        tags:
+            - { name: sonata.admin, manager_type: doctrine_phpcr, group: 'Basic CMS', label: 'Blog Posts' }
+        calls:
+            - [setRouteBuilder, ['@sonata.admin.route.path_info_slashes']]
+    basiccms.basic_cms.menu_provider:
+        class: Symfony\Cmf\Bundle\MenuBundle\Provider\PhpcrMenuProvider
+        arguments:
+            - '@cmf_menu.factory'
+            - '@doctrine_phpcr'
+            - /cms/pages
+        calls:
+            - [setRequest, ["@?request="]]
+        tags:
+            - { name: knp_menu.provider }
